@@ -1,3 +1,6 @@
+*.*~
+*.o
+flasm
 lex.yy.c
 assembler.tab.c
 assembler.tab.h

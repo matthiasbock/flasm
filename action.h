@@ -201,8 +201,10 @@ typedef	enum
 	TAG_PROTECT							= 24, /* the author doesn't want the file to be opened */
 	TAG_PATHSAREPOSTSCRIPT				= 25,
 	TAG_PLACEOBJECT2					= 26, /* possibly onClipEvents inside */
+	
 	TAG_REMOVEOBJECT2					= 28,
 	TAG_SYNCFRAME						= 29,
+	
 	TAG_FREEALL							= 31,
 	TAG_DEFINESHAPE3					= 32,
 	TAG_DEFINETEXT2						= 33,
@@ -224,6 +226,7 @@ typedef	enum
 	TAG_DEFINECOMMANDOBJ				= 50,
 	TAG_CHARACTERSET					= 51,
 	TAG_FONTREF							= 52,
+	
 	TAG_EXPORTASSETS					= 56,
 	TAG_IMPORTASSETS					= 57,
 	TAG_ENABLEDEBUGGER					= 58,
@@ -236,18 +239,30 @@ typedef	enum
 	TAG_SCRIPTLIMITS					= 65,
 	TAG_SETTABINDEX						= 66,
 	TAG_DEFINESHAPE4					= 67,
+	
 	TAG_FILEATTRIBUTES					= 69,
 	TAG_PLACEOBJECT3					= 70, /* possibly onClipEvents inside */
 	TAG_IMPORTASSETS2					= 71,
+	
 	TAG_DEFINEFONTINFO3					= 73,
 	TAG_DEFINETEXTINFO					= 74,
 	TAG_DEFINEFONT3						= 75,
-	TAG_AVM2DECL						= 76,
+	TAG_SYMBOLCLASS						= 76,
 	TAG_METADATA						= 77,
 	TAG_SLICE9							= 78,
+	
 	TAG_AVM2ACTION						= 82,
 	TAG_DEFINESHAPE5					= 83,
 	TAG_DEFINEMORPHSHAPE2				= 84,
+	
+	TAG_DEFINESCENEANDFRAMELABELDATA    = 86,
+    TAG_DEFINEBINARYDATA                = 87,
+    TAG_DEFINEFONTNAME                  = 88,
+    TAG_STARTSOUND2                     = 89,
+    TAG_DEFINEBITSJPEG4                 = 90,
+    TAG_DEFINEFONT4                     = 91,
+    TAG_ENABLETELEMETRY                 = 93,
+
 	TAG_DEFINEBITSPTR					= 1023
 } tagheaderid;
 

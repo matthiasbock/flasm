@@ -2108,6 +2108,15 @@ void disassembleSWF(FILE *f, char *fname)
 				print("end // of frame %u\n", frameNum);
 				break;
 
+			case TAG_AVM2ACTION: {
+                static char buf[MAX_BUFFER];
+                print("\n");
+                print("ActionScript 3.0");
+                fread(buf, 1, length, f);
+                putchar('\n');
+                break;
+            }
+
 			case TAG_INITMOVIECLIP:
 				print("\n");
 				componentID = getWord(f);
@@ -2253,6 +2262,15 @@ void disassembleSWF(FILE *f, char *fname)
 				break;
 			}
 
+			case TAG_SYMBOLCLASS: {
+				static char buf[MAX_BUFFER];
+				print("\n");
+				print("symbol class");
+				fread(buf, 1, length, f);
+				putchar('\n');
+				break;
+			}
+
 			case TAG_METADATA: {
 				static char buf[MAX_BUFFER];
 				print("\n");
@@ -2282,6 +2300,15 @@ void disassembleSWF(FILE *f, char *fname)
 				printf("\n");
 				break;
 			}
+
+            case TAG_DEFINEBINARYDATA: {
+                static char buf[MAX_BUFFER];
+                print("\n");
+                print("define binary data, %li bytes", length);
+                fread(buf, 1, length, f);
+                putchar('\n');
+                break;
+            }
 
 			default:
 				if (getTagString(type) == NULL) {
