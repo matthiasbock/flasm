@@ -2117,7 +2117,7 @@ void disassembleSWF(FILE *f, char *fname)
                 break;
             }
 
-			case TAG_INITMOVIECLIP:
+			case TAG_DOINITACTION:
 				print("\n");
 				componentID = getWord(f);
 				print("initMovieClip %i\n", componentID);
@@ -2301,10 +2301,19 @@ void disassembleSWF(FILE *f, char *fname)
 				break;
 			}
 
-            case TAG_DEFINEBINARYDATA: {
+            case TAG_DEFINESCENEANDFRAMELABELDATA: {
+                print("\n");
+                print("define scene and frame label data");
                 static char buf[MAX_BUFFER];
+                fread(buf, 1, length, f);
+                putchar('\n');
+                break;
+            }
+
+            case TAG_DEFINEBINARYDATA: {
                 print("\n");
                 print("define binary data, %li bytes", length);
+                static char buf[MAX_BUFFER];
                 fread(buf, 1, length, f);
                 putchar('\n');
                 break;

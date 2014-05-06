@@ -230,7 +230,7 @@ typedef    enum
     TAG_EXPORTASSETS                    = 56,
     TAG_IMPORTASSETS                    = 57,
     TAG_ENABLEDEBUGGER                  = 58,
-    TAG_DOINITACTION                    = 59, /* flash 6 mc initialization actions (#initclip .. #endinitclip) */
+    TAG_DOINITACTION                    = 59, /* formerly TAG_INITMOVIECLIP; flash 6 mc initialization actions (#initclip .. #endinitclip) */
     TAG_DEFINEVIDEOSTREAM               = 60,
     TAG_VIDEOFRAME                      = 61,
     TAG_DEFINEFONTINFO2                 = 62,
