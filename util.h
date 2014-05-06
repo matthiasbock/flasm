@@ -10,7 +10,7 @@ All rights reserved. See LICENSE.TXT for terms of use.
 #include <stdio.h>
 #include <stdint.h>
 
-#define	FLASM_VERSION		"1.63"
+#define	FLASM_VERSION		"1.7 alpha"
 #define	MALLOC_INC			16
 #define OUTPUT_INC			2048
 #define	MAX_BUFFER			1000000

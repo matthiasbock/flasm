@@ -7,7 +7,6 @@ All rights reserved. See LICENSE.TXT for terms of use.
 #ifndef	FLASM_H_INCLUDED
 #define	FLASM_H_INCLUDED
 #include "action.h"
-#include "util.h"
 
 extern int swfVersion;
 

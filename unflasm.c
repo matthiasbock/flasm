@@ -18,13 +18,15 @@ All rights reserved. See LICENSE.TXT for terms of use.
 
 #include "util.h"
 #include "action.h"
+#include "unflasm.h"
 
 void disassembleSWF(FILE *f, char *fname);
 void skipProtected(FILE *f, unsigned long int length);
 
 extern void tellUser(int isError, char *s, ...);
+extern void printAbcActions(unsigned long int length);
 
-static int indent = 1;
+int indent = 1;
 static int targetIndent = 0;
 static long int swfabspos = -1;
 static long int swfrelpos = -1;
@@ -112,16 +114,18 @@ unsigned int arPreFlags[] = {0x0001, 0x0004, 0x0010, 0x0040, 0x0080, 0x0100};
 /* suppress flags set for particular automatic value */
 unsigned int arSupFlags[] = {0x0002, 0x0008, 0x0020, 0x0000, 0x0000, 0x0000};
 
-							   
+byte *buffer;
+
+
 void skipProtected(FILE *f, unsigned long int length)
 {
 	if (fseek(f, length, SEEK_CUR) != 0)
 		tellUser(1, "Unexpected end of file");
 }
 
-static void printIndent(int i)
+void printIndent(int i)
 {
-	size_t buflen = INDENT_LEVEL*i;
+	size_t buflen = INDENT_LEVEL * (indent + i);
 	static long int lastpos = 0;
 	long int swfpos;
 
@@ -144,25 +148,38 @@ static void printIndent(int i)
 			buflen += 8;
 	}
 
-	if (i>0) {
+	if (buflen>0) {
 		char buf[buflen];
 		memset(buf, ' ', buflen);
 		fwrite(buf, sizeof(char), buflen, stdout);
 	}
 }
 
-static void print(char *s, ...)
+void print(char *s, ...)
 {
 	va_list ap;
 
-	printIndent(indent);
+	printIndent(0);
 
 	va_start(ap, s);
 	vprintf(s, ap);
 	va_end(ap);
 }
 
-static void printstr(char *str)
+void println(char *s, ...)
+{
+	va_list ap;
+
+	printIndent(0);
+
+	va_start(ap, s);
+	vprintf(s, ap);
+	va_end(ap);
+
+	putchar('\n');
+}
+
+void printstr(char *str)
 {
 	char buf[strlen(str)*2+3];
 	char *bufp = buf, *bufstr = str;
@@ -243,7 +260,7 @@ static void printFloat(float f, int intCast)
 static unsigned int bitPos;
 static unsigned int bitBuf;
 
-static void InitBits(FILE *f)
+static void initBits(FILE *f)
 {
 	bitPos = 8;
 	bitBuf = ((unsigned int) fgetc(f)) & 0xff;
@@ -270,7 +287,7 @@ static unsigned int getBits(FILE *f, unsigned int n)
 static void printFrameNum(unsigned int frameNum)
 {
 	printf("\n");
-	printIndent(indent);
+	printIndent(0);
 	printf("frame %u\n", frameNum);
 }
 
@@ -284,7 +301,7 @@ static void addLabel(unsigned long int offset)
 	}
 
 	SUREALLOC(numLabels, labels, sizeof (unsigned long int));
-	
+
 	if (labels == NULL)
 		tellUser(1, "Not enough memory to store all labels");
 
@@ -343,19 +360,17 @@ static void checkLabel(unsigned long int addr)
 {
 	if (curLabel < numLabels) {
 		while (addr > labels[curLabel]) {
-			printIndent(indent-1);
+			printIndent(-1);
 			printf(" %s%li: // Wild label in the middle of an action, now placed before next action\n", mode < MODE_UPDATE ? "label" : "lbl", ++curLabel);
 			tellUser(0, "Branch into the middle of an action, %s%li (off by %i bytes) is placed before next action", mode < MODE_UPDATE ? "label" : "lbl", curLabel, (int)(addr - labels[curLabel-1]));
 		}
 		if (addr == labels[curLabel]) {
-			printIndent(indent-1);
+			printIndent(-1);
 			/* make sure generated labels don't match user labels */
 			printf(" %s%li:\n", mode < MODE_UPDATE ? "label" : "lbl", ++curLabel);
 		}
 	}
 }
-
-static byte *buffer;
 
 static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char **regtable);
 
@@ -1303,7 +1318,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				nregisters = *p++;
 				autoregFlags = S16(p);
 				p += 2;
-				
+
 				if (*name != '\0') {
 					if (mode < MODE_UPDATE && goodID(name))
 						print("function2 %s (", name);
@@ -1366,7 +1381,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 
 				if (autoregFlags != 0)
 					tellUser(0,"Unknown register flag for function2 %s: %u", name, autoregFlags);
-				
+
 				funclen = S16(p);
 				p += 2;
 
@@ -1569,6 +1584,7 @@ static void createLabels(unsigned long int length)
 		showLiterals = 0;
 }
 
+
 static void printActionBlock(FILE *f, unsigned long int length, abtype abtype, unsigned int flags, byte key)
 {
 	swfabspos = ftell(f);
@@ -1615,7 +1631,7 @@ static void printActionBlock(FILE *f, unsigned long int length, abtype abtype, u
 
 static void skipMatrix(FILE *f)
 {
-	InitBits(f);
+	initBits(f);
 	if (getBits(f, 1))
 		getBits(f, getBits(f, 5) * 2);
 	if (getBits(f, 1))
@@ -1626,7 +1642,7 @@ static void skipMatrix(FILE *f)
 static void skipColorTransform(FILE *f)
 {
 	unsigned int needAdd, needMul, nBits;
-	InitBits(f);
+	initBits(f);
 	needAdd = getBits(f, 1);
 	needMul = getBits(f, 1);
 	nBits = getBits(f, 4);
@@ -1640,27 +1656,27 @@ static void skipFilters(FILE *f, byte numfilters)
 {
 	while(numfilters--) {
 		int filter = fgetc(f);
-		switch(filter){
+		switch (filter) {
 			case FILTER_DROPSHADOW:
 				skipProtected(f, 23);
 				break;
 			case FILTER_BLUR:
-				skipProtected(f, 9);				
-				break; 
+				skipProtected(f, 9);
+				break;
 			case FILTER_GLOW:
-				skipProtected(f, 15);				
-				break; 
+				skipProtected(f, 15);
+				break;
 			case FILTER_BEVEL:
-				skipProtected(f, 27);				
-				break; 
+				skipProtected(f, 27);
+				break;
 			case FILTER_GRADIENTGLOW:
-				skipProtected(f, fgetc(f)*5 + 19);	
-				break; 
+				skipProtected(f, fgetc(f)*5 + 19);
+				break;
 			case FILTER_ADJUSTCOLOR:
-				skipProtected(f, 80);				
+				skipProtected(f, 80);
 				break;
 			case FILTER_GRADIENTBEVEL:
-				skipProtected(f, fgetc(f)*5 + 19);	
+				skipProtected(f, fgetc(f)*5 + 19);
 				break;
 			default:
 				tellUser(1, "Unknown filter %i", filter);
@@ -1847,7 +1863,7 @@ static void parseButton2(FILE *f, unsigned long int length)
 			--lastABLength;
 		}
 	}
-	
+
 	/* button end */
 	fgetc(f);
 }
@@ -1869,7 +1885,7 @@ static void parseEvent(FILE *f, unsigned long int event, unsigned long int lengt
 	byte key = 0;
 	char delim = ' ';
 	unsigned long int event2 = event;
-	
+
 	putchar('\n');
 	++indent;
 	print("onClipEvent");
@@ -1917,7 +1933,7 @@ static void parsePlaceObject(FILE *f, unsigned long int length, unsigned int typ
 	unsigned int clipID = 0;
 	unsigned int depth;
 	unsigned long int curEvent;
-	
+
 	if (type == TAG_PLACEOBJECT2)
 		flags = fgetc(f);
 	else
@@ -1989,7 +2005,7 @@ static void parsePlaceObject(FILE *f, unsigned long int length, unsigned int typ
 			print("end // of placeMovieClip %u\n", clipID);
 		else
 			print("end // of placeMovieClip ???\n");
-		
+
 	}
 	else {
 		/* no events found, skip the rest of placeObject2/3 */
@@ -2014,7 +2030,7 @@ static void parseMovieClip(FILE *f)
 	while (!feof(f)) {
 		unsigned int type;
 		unsigned long int length;
-		
+
 		parseTagHeader(f, &type, &length);
 
 		if (type == 0)
@@ -2064,7 +2080,7 @@ void disassembleSWF(FILE *f, char *fname)
 	size = getDoubleWord(f);
 
 	/* movie bounds */
-	InitBits(f);
+	initBits(f);
 	bits = getBits(f, 5);
 	/* xMin - always 0 */
 	getBits(f, bits);
@@ -2107,6 +2123,32 @@ void disassembleSWF(FILE *f, char *fname)
 				printActionBlock(f, length, AB_FRAME, frameNum, 0);
 				print("end // of frame %u\n", frameNum);
 				break;
+
+			case TAG_DOABC: {
+				int n;
+				length -= 5;
+				print("doABC\n");
+				readActionBuffer(f, length);
+				printAbcActions(length);
+				print("end // of doABC\n");
+				break;
+			}
+
+			case TAG_DOABC2: {
+				unsigned long int flags = getDoubleWord(f);
+				int n;
+				length -= 5;
+				print("doABC2 '");
+				while ((n = fgetc(f)) != 0) {
+					putchar((char) n);
+					--length;
+				}
+				printf("'\n");
+				readActionBuffer(f, length);
+				printAbcActions(length);
+				print("end // of doABC2\n");
+				break;
+			}
 
 			case TAG_INITMOVIECLIP:
 				print("\n");
@@ -2204,11 +2246,17 @@ void disassembleSWF(FILE *f, char *fname)
 				parseMovieClip(f);
 				break;
 
+			case TAG_SYMBOLCLASS:
 			case TAG_EXPORTASSETS: {
 				unsigned int assetID, numAssets = getWord(f);
 				int n;
 				print("\n");
-				print("exportAssets\n");
+
+				if (type == TAG_EXPORTASSETS)
+					print("exportAssets\n");
+				else
+					print("symbolClass\n");
+
 				++indent;
 				while (numAssets--) {
 					print("%u as '", assetID = getWord(f));
@@ -2218,7 +2266,12 @@ void disassembleSWF(FILE *f, char *fname)
 					printf("'\n");
 				}
 				--indent;
-				print("end // of exportAssets\n");
+
+				if (type == TAG_EXPORTASSETS)
+					print("end // of exportAssets\n");
+				else
+					print("end // of symbolClass\n");
+
 				break;
 			}
 
@@ -2260,6 +2313,18 @@ void disassembleSWF(FILE *f, char *fname)
 				fread(buf, 1, length, f);
 				printstr(buf);
 				putchar('\n');
+				break;
+			}
+
+			case TAG_DEBUGID: {
+				int n;
+				print("\n");
+				print("debugID '");
+				while (length-- > 0) {
+					n = fgetc(f);
+					printf("%02x", n);
+				}
+				printf("'\n");
 				break;
 			}
 
