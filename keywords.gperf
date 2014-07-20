@@ -31,7 +31,7 @@ end,                    0,              END
 #
 # action containers
 #
-initmovieclip,         -1,              INITMOVIECLIP
+doinitaction,          -1,              DOINITACTION
 frame,                 -1,              FRAME
 on,                    -1,              ON
 onclipevent,           -1,              ONCLIPEVENT

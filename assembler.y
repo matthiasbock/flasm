@@ -74,7 +74,7 @@ static unsigned int autoregFlags, nosuppressFlags;
 %token FRAME
 %token PLACEMOVIECLIP
 %token DEFINEMOVIECLIP
-%token INITMOVIECLIP
+%token DOINITACTION
 %token DEFINEBUTTON
 %token ON
 %token ONCLIPEVENT
@@ -383,7 +383,7 @@ frame
         ;
 
 initmc
-        : INITMOVIECLIP INTEGER statements_opt END
+        : DOINITACTION INTEGER statements_opt END
                                                 {
                                                     $$ = $3;
                                                     /*action end*/

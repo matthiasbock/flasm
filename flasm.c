@@ -718,9 +718,9 @@ void writeDoAction()
 void writeInitMC(unsigned int clipID)
 {
 	unsigned int oldID;
-	unsigned long int oldLength = findNextTag(TAG_INITMOVIECLIP);
+	unsigned long int oldLength = findNextTag(TAG_DOINITACTION);
 
-	writeTagHeader(TAG_INITMOVIECLIP, len + 2);
+	writeTagHeader(TAG_DOINITACTION, len + 2);
 
 	oldID = dupWord();
 	if (oldID != clipID)
