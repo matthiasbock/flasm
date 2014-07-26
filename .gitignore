@@ -5,3 +5,5 @@ lex.yy.c
 assembler.tab.c
 assembler.tab.h
 keywords.c
+.cproject
+.project

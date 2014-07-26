@@ -214,8 +214,8 @@ setvariable,            1,              SETVARIABLE
 concat,                 1,              STRINGCONCAT
 getproperty,            1,              GETPROPERTY
 setproperty,            1,              SETPROPERTY
-duplicateclip,          1,              DUPLICATECLIP
-removeclip,             1,              REMOVECLIP
+duplicatesprite,        1,              DUPLICATESPRITE
+removesprite,           1,              REMOVESPRITE
 trace,                  1,              TRACE
 startdrag,              1,              STARTDRAGMOVIE
 stopdrag,               1,              STOPDRAGMOVIE
@@ -246,7 +246,7 @@ extends,                1,              EXTENDS
 throw,                  1,              THROW
 cast,                   1,              CAST
 fscommand2,             1,              FSCOMMAND2
-swfaction,              1,              SWFACTION
+swfaction,              1,              ACTION
 #
 # file attributes (flash 8/9)
 #

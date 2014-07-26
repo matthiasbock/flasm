@@ -393,7 +393,7 @@ unsigned int writeConstants(void)
 	unsigned int i;
 	unsigned long int clen = 2;
 
-	writeByte(SWFACTION_CONSTANTPOOL);
+	writeByte(ACTION_CONSTANTPOOL);
 	/* length */
 	writeShort(0);
 	writeShort(nConstants);
@@ -448,7 +448,7 @@ static void patchTargets(void)
 			unsigned int blocklen = S16(output + i);
 			i += 2;
 
-			if (op == SWFACTION_BRANCHALWAYS || op == SWFACTION_BRANCHIFTRUE) {
+			if (op == ACTION_BRANCHALWAYS || op == ACTION_BRANCHIFTRUE) {
 				long int offset;
 				unsigned int target = S16(output+i);
 

@@ -241,8 +241,8 @@ static unsigned int autoregFlags, nosuppressFlags;
 %token STRINGCONCAT
 %token GETPROPERTY
 %token SETPROPERTY
-%token DUPLICATECLIP
-%token REMOVECLIP
+%token DUPLICATESPRITE
+%token REMOVESPRITE
 %token TRACE
 %token STARTDRAGMOVIE
 %token STOPDRAGMOVIE
@@ -291,7 +291,7 @@ static unsigned int autoregFlags, nosuppressFlags;
 %token ATTRACTIONSCRIPT3
 %token ATTRHASMETADATA
 /* unknown instruction handling */
-%token SWFACTION
+%token ACTION
 %token HEXDATA
 
 %token '(' ')' ',' ':' '"' '.' '='
@@ -605,7 +605,7 @@ finally_opt
 
 trycatchfinally 
         : TRY name_opt                          {
-                                                    $<num>$ = writeByte(SWFACTION_TRY);
+                                                    $<num>$ = writeByte(ACTION_TRY);
                                                     /* action length */
                                                     $<num>$ += writeShort(strlen($2)+8);
                                                     /* zero flag */
@@ -634,7 +634,7 @@ trycatchfinally
                                                 }
 
         | TRY register                          {
-                                                    $<num>$ = writeByte(SWFACTION_TRY);
+                                                    $<num>$ = writeByte(ACTION_TRY);
                                                     /* action length */
                                                     $<num>$ += writeShort(8);
                                                     /* zero flag */
@@ -707,7 +707,7 @@ name_opt
 
 function
         : FUNCTION name_opt                     {
-                                                    $<num>$ = writeByte(SWFACTION_DEFINEFUNCTION);
+                                                    $<num>$ = writeByte(ACTION_DEFINEFUNCTION);
                                                     /* zero block length */
                                                     $<num>$ += writeShort(0);
                                                     $<num>$ += writeString($2);
@@ -837,7 +837,7 @@ autoregarglist
 
 function2
         : FUNCTION2 name_opt                    {
-                                                    $<num>$ = writeByte(SWFACTION_DEFINEFUNCTION2);
+                                                    $<num>$ = writeByte(ACTION_DEFINEFUNCTION2);
                                                     /* zero block length */
                                                     $<num>$ += writeShort(0);
                                                     /* function name */
@@ -905,7 +905,7 @@ function2
 
 with
         : WITH                                  {
-                                                    $<num>$ = writeByte(SWFACTION_WITH);
+                                                    $<num>$ = writeByte(ACTION_WITH);
                                                     /* length of with action */
                                                     $<num>$ += writeShort(2);
                                                     /* length of with block - will be patched */
@@ -921,22 +921,22 @@ with
 
 settarget
         : SETTARGET STRING                      {
-                                                    $<num>$ = writeByte(SWFACTION_SETTARGET);
+                                                    $<num>$ = writeByte(ACTION_SETTARGET);
                                                     $<num>$ += writeShort(strlen($2)+1);
                                                     $<num>$ += writeString($2);
                                                 }
 
           statements_opt END                    {
-                                                    $$ = $4 + writeByte(SWFACTION_SETTARGET);
+                                                    $$ = $4 + writeByte(ACTION_SETTARGET);
                                                     $$ += $<num>3 + writeShort(1);
                                                     $$ += writeByte(0);
                                                 }
         ;
 
 settargetexpression
-        : SETTARGETEXPR                         {   $<num>$ = writeByte(SWFACTION_SETTARGETEXPRESSION);  }
+        : SETTARGETEXPR                         {   $<num>$ = writeByte(ACTION_SETTARGETEXPRESSION);  }
           statements_opt END                    {
-                                                    $$ = $3 + writeByte(SWFACTION_SETTARGET);
+                                                    $$ = $3 + writeByte(ACTION_SETTARGET);
                                                     $$ += $<num>2 + writeShort(1);
                                                     $$ += writeByte(0);
                                                 }
@@ -946,7 +946,7 @@ ifframeloadedexpression
         : IFFRAMELOADEDEXPR                     {
                                                     if (frameloadedStart>-1)
                                                         yyerror("IfFrameLoaded actions can't be nested");
-                                                    $<num>$ = writeByte(SWFACTION_IFFRAMELOADEDEXPRESSION);
+                                                    $<num>$ = writeByte(ACTION_IFFRAMELOADEDEXPRESSION);
                                                     $<num>$ += writeShort(1);
                                                     $<num>$ += writeByte(0);
                                                     frameloadedStart = numActions;
@@ -963,7 +963,7 @@ ifframeloaded
         : IFFRAMELOADED INTEGER                 {
                                                     if (frameloadedStart>-1)
                                                         yyerror("IfFrameLoaded actions can't be nested");
-                                                    $<num>$ = writeByte(SWFACTION_IFFRAMELOADED);
+                                                    $<num>$ = writeByte(ACTION_IFFRAMELOADED);
                                                     $<num>$ += writeShort(3);
                                                     $<num>$ += writeShort($2);
                                                     $<num>$ += writeByte(0);
@@ -1199,7 +1199,7 @@ opcode
           constant_list_opt                     {   $$ = writeConstants();  }
 
         | PUSH                                  {
-                                                    $<num>$ = writeByte(SWFACTION_PUSHDATA);
+                                                    $<num>$ = writeByte(ACTION_PUSHDATA);
                                                     /* length */
                                                     $<num>$ += writeShort(0);
                                                 }
@@ -1209,7 +1209,7 @@ opcode
                                                     patchLength($3, $3);
                                                 }
 
-        | SWFACTION HEX                         {
+        | ACTION HEX                         {
                                                     if (xtoi($2)>0xff)
                                                         yyerror("Action code out of range");
                                                     $<num>$ = writeByte((char)xtoi($2));
@@ -1225,60 +1225,60 @@ opcode
                                                 }
 
         | SETREGISTER register                  {
-                                                    $$ = writeByte(SWFACTION_SETREGISTER);
+                                                    $$ = writeByte(ACTION_SETREGISTER);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte((byte)$2);
                                                 }
 
-        | STRICTEQUALS                          {   $$ = writeByte(SWFACTION_STRICTEQUALS);     }
-        | GREATERTHAN                           {   $$ = writeByte(SWFACTION_GREATERTHAN);      }
-        | ENUMERATEVALUE                        {   $$ = writeByte(SWFACTION_ENUMERATEVALUE);   }
-        | INSTANCEOF                            {   $$ = writeByte(SWFACTION_INSTANCEOF);       }
-        | NEXTFRAME                             {   $$ = writeByte(SWFACTION_NEXTFRAME);        }
-        | PREVFRAME                             {   $$ = writeByte(SWFACTION_PREVFRAME);        }
-        | PLAY                                  {   $$ = writeByte(SWFACTION_PLAY);             }
-        | STOP                                  {   $$ = writeByte(SWFACTION_STOP);             }
-        | TOGGLEQUALITY                         {   $$ = writeByte(SWFACTION_TOGGLEQUALITY);    }
-        | STOPSOUNDS                            {   $$ = writeByte(SWFACTION_STOPSOUNDS);       }
-        | CALLFUNCTION                          {   $$ = writeByte(SWFACTION_CALLFUNCTION);     }
-        | RETURN                                {   $$ = writeByte(SWFACTION_RETURN);           }
-        | NEWMETHOD                             {   $$ = writeByte(SWFACTION_NEWMETHOD);        }
-        | CALLMETHOD                            {   $$ = writeByte(SWFACTION_CALLMETHOD);       }
-        | BITWISEAND                            {   $$ = writeByte(SWFACTION_BITWISEAND);       }
-        | BITWISEOR                             {   $$ = writeByte(SWFACTION_BITWISEOR);        }
-        | BITWISEXOR                            {   $$ = writeByte(SWFACTION_BITWISEXOR);       }
-        | MODULO                                {   $$ = writeByte(SWFACTION_MODULO);           }
-        | NEWADD                                {   $$ = writeByte(SWFACTION_NEWADD);           }
-        | NEWLESSTHAN                           {   $$ = writeByte(SWFACTION_NEWLESSTHAN);      }
-        | NEWEQUALS                             {   $$ = writeByte(SWFACTION_NEWEQUALS);        }
-        | TONUMBER                              {   $$ = writeByte(SWFACTION_TONUMBER);         }
-        | TOSTRING                              {   $$ = writeByte(SWFACTION_TOSTRING);         }
-        | INCREMENT                             {   $$ = writeByte(SWFACTION_INCREMENT);        }
-        | DECREMENT                             {   $$ = writeByte(SWFACTION_DECREMENT);        }
-        | TYPEOF                                {   $$ = writeByte(SWFACTION_TYPEOF);           }
-        | TARGETPATH                            {   $$ = writeByte(SWFACTION_TARGETPATH);       }
-        | ENUMERATE                             {   $$ = writeByte(SWFACTION_ENUMERATE);        }
-        | DELETE                                {   $$ = writeByte(SWFACTION_DELETE);           }
-        | DELETE2                               {   $$ = writeByte(SWFACTION_DELETE2);          }
-        | NEW                                   {   $$ = writeByte(SWFACTION_NEW);              }
-        | INITARRAY                             {   $$ = writeByte(SWFACTION_INITARRAY);        }
-        | INITOBJECT                            {   $$ = writeByte(SWFACTION_INITOBJECT);       }
-        | GETMEMBER                             {   $$ = writeByte(SWFACTION_GETMEMBER);        }
-        | SETMEMBER                             {   $$ = writeByte(SWFACTION_SETMEMBER);        }
-        | SHIFTLEFT                             {   $$ = writeByte(SWFACTION_SHIFTLEFT);        }
-        | SHIFTRIGHT                            {   $$ = writeByte(SWFACTION_SHIFTRIGHT);       }
-        | SHIFTRIGHT2                           {   $$ = writeByte(SWFACTION_SHIFTRIGHT2);      }
-        | VAR                                   {   $$ = writeByte(SWFACTION_VAR);              }
-        | VAREQUALS                             {   $$ = writeByte(SWFACTION_VAREQUALS);        }
-        | OLDADD                                {   $$ = writeByte(SWFACTION_ADD);              }
-        | SUBTRACT                              {   $$ = writeByte(SWFACTION_SUBTRACT);         }
-        | MULTIPLY                              {   $$ = writeByte(SWFACTION_MULTIPLY);         }
-        | DIVIDE                                {   $$ = writeByte(SWFACTION_DIVIDE);           }
-        | OLDEQUALS                             {   $$ = writeByte(SWFACTION_EQUALS);           }
-        | OLDLESSTHAN                           {   $$ = writeByte(SWFACTION_LESSTHAN);         }
-        | FSCOMMAND2                            {   $$ = writeByte(SWFACTION_FSCOMMAND2);       }
-        | LOGICALAND                            {   $$ = writeByte(SWFACTION_LOGICALAND);       }
-        | LOGICALOR                             {   $$ = writeByte(SWFACTION_LOGICALOR);        }
+        | STRICTEQUALS                          {   $$ = writeByte(ACTION_STRICTEQUALS);     }
+        | GREATERTHAN                           {   $$ = writeByte(ACTION_GREATERTHAN);      }
+        | ENUMERATEVALUE                        {   $$ = writeByte(ACTION_ENUMERATEVALUE);   }
+        | INSTANCEOF                            {   $$ = writeByte(ACTION_INSTANCEOF);       }
+        | NEXTFRAME                             {   $$ = writeByte(ACTION_NEXTFRAME);        }
+        | PREVFRAME                             {   $$ = writeByte(ACTION_PREVFRAME);        }
+        | PLAY                                  {   $$ = writeByte(ACTION_PLAY);             }
+        | STOP                                  {   $$ = writeByte(ACTION_STOP);             }
+        | TOGGLEQUALITY                         {   $$ = writeByte(ACTION_TOGGLEQUALITY);    }
+        | STOPSOUNDS                            {   $$ = writeByte(ACTION_STOPSOUNDS);       }
+        | CALLFUNCTION                          {   $$ = writeByte(ACTION_CALLFUNCTION);     }
+        | RETURN                                {   $$ = writeByte(ACTION_RETURN);           }
+        | NEWMETHOD                             {   $$ = writeByte(ACTION_NEWMETHOD);        }
+        | CALLMETHOD                            {   $$ = writeByte(ACTION_CALLMETHOD);       }
+        | BITWISEAND                            {   $$ = writeByte(ACTION_BITWISEAND);       }
+        | BITWISEOR                             {   $$ = writeByte(ACTION_BITWISEOR);        }
+        | BITWISEXOR                            {   $$ = writeByte(ACTION_BITWISEXOR);       }
+        | MODULO                                {   $$ = writeByte(ACTION_MODULO);           }
+        | NEWADD                                {   $$ = writeByte(ACTION_NEWADD);           }
+        | NEWLESSTHAN                           {   $$ = writeByte(ACTION_NEWLESSTHAN);      }
+        | NEWEQUALS                             {   $$ = writeByte(ACTION_NEWEQUALS);        }
+        | TONUMBER                              {   $$ = writeByte(ACTION_TONUMBER);         }
+        | TOSTRING                              {   $$ = writeByte(ACTION_TOSTRING);         }
+        | INCREMENT                             {   $$ = writeByte(ACTION_INCREMENT);        }
+        | DECREMENT                             {   $$ = writeByte(ACTION_DECREMENT);        }
+        | TYPEOF                                {   $$ = writeByte(ACTION_TYPEOF);           }
+        | TARGETPATH                            {   $$ = writeByte(ACTION_TARGETPATH);       }
+        | ENUMERATE                             {   $$ = writeByte(ACTION_ENUMERATE);        }
+        | DELETE                                {   $$ = writeByte(ACTION_DELETE);           }
+        | DELETE2                               {   $$ = writeByte(ACTION_DELETE2);          }
+        | NEW                                   {   $$ = writeByte(ACTION_NEW);              }
+        | INITARRAY                             {   $$ = writeByte(ACTION_INITARRAY);        }
+        | INITOBJECT                            {   $$ = writeByte(ACTION_INITOBJECT);       }
+        | GETMEMBER                             {   $$ = writeByte(ACTION_GETMEMBER);        }
+        | SETMEMBER                             {   $$ = writeByte(ACTION_SETMEMBER);        }
+        | SHIFTLEFT                             {   $$ = writeByte(ACTION_SHIFTLEFT);        }
+        | SHIFTRIGHT                            {   $$ = writeByte(ACTION_SHIFTRIGHT);       }
+        | SHIFTRIGHT2                           {   $$ = writeByte(ACTION_SHIFTRIGHT2);      }
+        | VAR                                   {   $$ = writeByte(ACTION_VAR);              }
+        | VAREQUALS                             {   $$ = writeByte(ACTION_VAREQUALS);        }
+        | OLDADD                                {   $$ = writeByte(ACTION_ADD);              }
+        | SUBTRACT                              {   $$ = writeByte(ACTION_SUBTRACT);         }
+        | MULTIPLY                              {   $$ = writeByte(ACTION_MULTIPLY);         }
+        | DIVIDE                                {   $$ = writeByte(ACTION_DIVIDE);           }
+        | OLDEQUALS                             {   $$ = writeByte(ACTION_EQUALS);           }
+        | OLDLESSTHAN                           {   $$ = writeByte(ACTION_LESSTHAN);         }
+        | FSCOMMAND2                            {   $$ = writeByte(ACTION_FSCOMMAND2);       }
+        | LOGICALAND                            {   $$ = writeByte(ACTION_LOGICALAND);       }
+        | LOGICALOR                             {   $$ = writeByte(ACTION_LOGICALOR);        }
         | LOGICALNOT LOGICALNOT                 {
                                                     if (mode >= MODE_UPDATE) {
                                                         /* strip double nots */
@@ -1286,155 +1286,155 @@ opcode
                                                         numActions -= 2;
                                                     }
                                                     else {
-                                                        $$ = writeByte(SWFACTION_LOGICALNOT);
-                                                        $$ += writeByte(SWFACTION_LOGICALNOT);
+                                                        $$ = writeByte(ACTION_LOGICALNOT);
+                                                        $$ += writeByte(ACTION_LOGICALNOT);
                                                     }
                                                 }
-        | LOGICALNOT                            {   $$ = writeByte(SWFACTION_LOGICALNOT);       }
-        | STRINGEQ                              {   $$ = writeByte(SWFACTION_STRINGEQ);         }
-        | STRINGLENGTH                          {   $$ = writeByte(SWFACTION_STRINGLENGTH);     }
-        | SUBSTRING                             {   $$ = writeByte(SWFACTION_SUBSTRING);        }
-        | INT                                   {   $$ = writeByte(SWFACTION_INT);              }
-        | DUP                                   {   $$ = writeByte(SWFACTION_DUP);              }
-        | SWAP                                  {   $$ = writeByte(SWFACTION_SWAP);             }
-        | POP                                   {   $$ = writeByte(SWFACTION_POP);              }
-        | GETVARIABLE                           {   $$ = writeByte(SWFACTION_GETVARIABLE);      }
-        | SETVARIABLE                           {   $$ = writeByte(SWFACTION_SETVARIABLE);      }
-        | STRINGCONCAT                          {   $$ = writeByte(SWFACTION_STRINGCONCAT);     }
-        | GETPROPERTY                           {   $$ = writeByte(SWFACTION_GETPROPERTY);      }
-        | SETPROPERTY                           {   $$ = writeByte(SWFACTION_SETPROPERTY);      }
-        | DUPLICATECLIP                         {   $$ = writeByte(SWFACTION_DUPLICATECLIP);    }
-        | REMOVECLIP                            {   $$ = writeByte(SWFACTION_REMOVECLIP);       }
-        | TRACE                                 {   $$ = writeByte(SWFACTION_TRACE);            }
-        | STARTDRAGMOVIE                        {   $$ = writeByte(SWFACTION_STARTDRAGMOVIE);   }
-        | STOPDRAGMOVIE                         {   $$ = writeByte(SWFACTION_STOPDRAGMOVIE);    }
-        | STRINGLESSTHAN                        {   $$ = writeByte(SWFACTION_STRINGLESSTHAN);   }
-        | STRINGGREATERTHAN                     {   $$ = writeByte(SWFACTION_STRINGGREATERTHAN);}
-        | RANDOM                                {   $$ = writeByte(SWFACTION_RANDOM);           }
-        | MBLENGTH                              {   $$ = writeByte(SWFACTION_MBLENGTH);         }
-        | ORD                                   {   $$ = writeByte(SWFACTION_ORD);              }
-        | CHR                                   {   $$ = writeByte(SWFACTION_CHR);              }
-        | GETTIMER                              {   $$ = writeByte(SWFACTION_GETTIMER);         }
-        | MBSUBSTRING                           {   $$ = writeByte(SWFACTION_MBSUBSTRING);      }
-        | MBORD                                 {   $$ = writeByte(SWFACTION_MBORD);            }
-        | MBCHR                                 {   $$ = writeByte(SWFACTION_MBCHR);            }
-        | IMPLEMENTS                            {   $$ = writeByte(SWFACTION_IMPLEMENTS);       }
-        | EXTENDS                               {   $$ = writeByte(SWFACTION_EXTENDS);          }
-        | THROW                                 {   $$ = writeByte(SWFACTION_THROW);            }
-        | CAST                                  {   $$ = writeByte(SWFACTION_CAST);             }
+        | LOGICALNOT                            {   $$ = writeByte(ACTION_LOGICALNOT);       }
+        | STRINGEQ                              {   $$ = writeByte(ACTION_STRINGEQ);         }
+        | STRINGLENGTH                          {   $$ = writeByte(ACTION_STRINGLENGTH);     }
+        | SUBSTRING                             {   $$ = writeByte(ACTION_SUBSTRING);        }
+        | INT                                   {   $$ = writeByte(ACTION_INT);              }
+        | DUP                                   {   $$ = writeByte(ACTION_DUP);              }
+        | SWAP                                  {   $$ = writeByte(ACTION_SWAP);             }
+        | POP                                   {   $$ = writeByte(ACTION_POP);              }
+        | GETVARIABLE                           {   $$ = writeByte(ACTION_GETVARIABLE);      }
+        | SETVARIABLE                           {   $$ = writeByte(ACTION_SETVARIABLE);      }
+        | STRINGCONCAT                          {   $$ = writeByte(ACTION_STRINGCONCAT);     }
+        | GETPROPERTY                           {   $$ = writeByte(ACTION_GETPROPERTY);      }
+        | SETPROPERTY                           {   $$ = writeByte(ACTION_SETPROPERTY);      }
+        | DUPLICATESPRITE                       {   $$ = writeByte(ACTION_DUPLICATESPRITE);  }
+        | REMOVESPRITE                          {   $$ = writeByte(ACTION_REMOVESPRITE);     }
+        | TRACE                                 {   $$ = writeByte(ACTION_TRACE);            }
+        | STARTDRAGMOVIE                        {   $$ = writeByte(ACTION_STARTDRAGMOVIE);   }
+        | STOPDRAGMOVIE                         {   $$ = writeByte(ACTION_STOPDRAGMOVIE);    }
+        | STRINGLESSTHAN                        {   $$ = writeByte(ACTION_STRINGLESSTHAN);   }
+        | STRINGGREATERTHAN                     {   $$ = writeByte(ACTION_STRINGGREATERTHAN);}
+        | RANDOM                                {   $$ = writeByte(ACTION_RANDOM);           }
+        | MBLENGTH                              {   $$ = writeByte(ACTION_MBLENGTH);         }
+        | ORD                                   {   $$ = writeByte(ACTION_ORD);              }
+        | CHR                                   {   $$ = writeByte(ACTION_CHR);              }
+        | GETTIMER                              {   $$ = writeByte(ACTION_GETTIMER);         }
+        | MBSUBSTRING                           {   $$ = writeByte(ACTION_MBSUBSTRING);      }
+        | MBORD                                 {   $$ = writeByte(ACTION_MBORD);            }
+        | MBCHR                                 {   $$ = writeByte(ACTION_MBCHR);            }
+        | IMPLEMENTS                            {   $$ = writeByte(ACTION_IMPLEMENTS);       }
+        | EXTENDS                               {   $$ = writeByte(ACTION_EXTENDS);          }
+        | THROW                                 {   $$ = writeByte(ACTION_THROW);            }
+        | CAST                                  {   $$ = writeByte(ACTION_CAST);             }
 
         | CALLFRAME                             {
-                                                    $$ = writeByte(SWFACTION_CALLFRAME);
+                                                    $$ = writeByte(ACTION_CALLFRAME);
                                                     $$ += writeShort(0);
                                                 }
 
         | GOTOANDSTOP                           {   
-                                                    $$ = writeByte(SWFACTION_GOTOEXPRESSION);
+                                                    $$ = writeByte(ACTION_GOTOEXPRESSION);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte(0);
                                                 }
 
         | GOTOANDSTOP SKIP INTEGER              {   
-                                                    $$ = writeByte(SWFACTION_GOTOEXPRESSION);
+                                                    $$ = writeByte(ACTION_GOTOEXPRESSION);
                                                     $$ += writeShort(3);
                                                     $$ += writeByte(2);
                                                     $$ += writeShort($3);
                                                 }
 
         | GOTOANDPLAY                           {
-                                                    $$ = writeByte(SWFACTION_GOTOEXPRESSION);
+                                                    $$ = writeByte(ACTION_GOTOEXPRESSION);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte(1);
                                                 }
 
         | GOTOANDPLAY SKIP INTEGER              {
-                                                    $$ = writeByte(SWFACTION_GOTOEXPRESSION);
+                                                    $$ = writeByte(ACTION_GOTOEXPRESSION);
                                                     $$ += writeShort(3);
                                                     $$ += writeByte(3);
                                                     $$ += writeShort($3);
                                                 }
 
         | GOTOLABEL STRING                      {
-                                                    $$ = writeByte(SWFACTION_GOTOLABEL);
+                                                    $$ = writeByte(ACTION_GOTOLABEL);
                                                     $$ += writeShort(strlen($2)+1);
                                                     $$ += writeString($2);
                                                 }
 
         | BRANCHALWAYS STRING                   {
-                                                    $$ = writeByte(SWFACTION_BRANCHALWAYS);
+                                                    $$ = writeByte(ACTION_BRANCHALWAYS);
                                                     $$ += writeShort(2);
                                                     $$ += branchTarget($2);
                                                 }
 
         | BRANCHALWAYS INTEGER                  {
-                                                    $$ = writeByte(SWFACTION_BRANCHALWAYS);
+                                                    $$ = writeByte(ACTION_BRANCHALWAYS);
                                                     $$ += writeShort(2);
                                                     $$ += addNumLabel($2);
                                                 }
 
         | BRANCHIFTRUE STRING                   {
-                                                    $$ = writeByte(SWFACTION_BRANCHIFTRUE);
+                                                    $$ = writeByte(ACTION_BRANCHIFTRUE);
                                                     $$ += writeShort(2);
                                                     $$ += branchTarget($2);
                                                 }
 
         | BRANCHIFTRUE INTEGER                  {
-                                                    $$ = writeByte(SWFACTION_BRANCHIFTRUE);
+                                                    $$ = writeByte(ACTION_BRANCHIFTRUE);
                                                     $$ += writeShort(2);
                                                     $$ += addNumLabel($2);
                                                 }
 
         | GOTOFRAME INTEGER                     {
-                                                    $$ = writeByte(SWFACTION_GOTOFRAME);
+                                                    $$ = writeByte(ACTION_GOTOFRAME);
                                                     $$ += writeShort(2);
                                                     $$ += writeShort($2);
                                                 }
 
         | GETURL STRING STRING                  {
-                                                    $$ = writeByte(SWFACTION_GETURL);
+                                                    $$ = writeByte(ACTION_GETURL);
                                                     $$ += writeShort(strlen($2)+strlen($3)+2);
                                                     $$ += writeString($2); 
                                                     $$ += writeString($3);
                                                 }
 
         | GETURL2 urlmethod                     {
-                                                    $$ = writeByte(SWFACTION_GETURL2);
+                                                    $$ = writeByte(ACTION_GETURL2);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte($2);
                                                 }
 
         | LOADVARIABLES urlmethod               {
-                                                    $$ = writeByte(SWFACTION_GETURL2);
+                                                    $$ = writeByte(ACTION_GETURL2);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte(0xc0 + $2);
                                                 }
 
         | LOADVARIABLESNUM urlmethod            {
-                                                    $$ = writeByte(SWFACTION_GETURL2);
+                                                    $$ = writeByte(ACTION_GETURL2);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte(0x80 + $2);
                                                 }
 
         | LOADMOVIE urlmethod                   {
-                                                    $$ = writeByte(SWFACTION_GETURL2);
+                                                    $$ = writeByte(ACTION_GETURL2);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte(0x40 + $2);
                                                 }
 
         | LOADMOVIENUM urlmethod                {
-                                                    $$ = writeByte(SWFACTION_GETURL2);
+                                                    $$ = writeByte(ACTION_GETURL2);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte($2);
                                                 }
 
         | STRICTMODE ON                         {
-                                                    $$ = writeByte(SWFACTION_STRICTMODE);
+                                                    $$ = writeByte(ACTION_STRICTMODE);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte(1);
                                                 }
 
         | STRICTMODE OFF                        {
-                                                    $$ = writeByte(SWFACTION_STRICTMODE);
+                                                    $$ = writeByte(ACTION_STRICTMODE);
                                                     $$ += writeShort(1);
                                                     $$ += writeByte(0);
                                                 }

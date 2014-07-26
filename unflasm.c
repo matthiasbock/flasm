@@ -406,138 +406,138 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 	unsigned int len = *lenptr;
 
 	switch (type) {
-		case SWFACTION_ADD:
+		case ACTION_ADD:
 			print("oldAdd\n");
 			break;
-		case SWFACTION_SUBTRACT:
+		case ACTION_SUBTRACT:
 			print("subtract\n");
 			break;
-		case SWFACTION_MULTIPLY:
+		case ACTION_MULTIPLY:
 			print("multiply\n");
 			break;
-		case SWFACTION_DIVIDE:
+		case ACTION_DIVIDE:
 			print("divide\n");
 			break;
-		case SWFACTION_EQUALS:
+		case ACTION_EQUALS:
 			print("oldEquals\n");
 			break;
-		case SWFACTION_LESSTHAN:
+		case ACTION_LESSTHAN:
 			print("oldLessThan\n");
 			break;
-		case SWFACTION_LOGICALAND:
+		case ACTION_LOGICALAND:
 			print("and\n");
 			break;
-		case SWFACTION_LOGICALOR:
+		case ACTION_LOGICALOR:
 			print("or\n");
 			break;
-		case SWFACTION_LOGICALNOT:
+		case ACTION_LOGICALNOT:
 			print("not\n");
 			break;
-		case SWFACTION_STRINGEQ:
+		case ACTION_STRINGEQ:
 			print("stringEq\n");
 			break;
-		case SWFACTION_STRINGLENGTH:
+		case ACTION_STRINGLENGTH:
 			print("stringLength\n");
 			break;
-		case SWFACTION_SUBSTRING:
+		case ACTION_SUBSTRING:
 			print("substring\n");
 			break;
-		case SWFACTION_INT:
+		case ACTION_INT:
 			print("int\n");
 			break;
-		case SWFACTION_POP:
+		case ACTION_POP:
 			print("pop\n");
 			break;
-		case SWFACTION_SWAP:
+		case ACTION_SWAP:
 			print("swap\n");
 			break;
-		case SWFACTION_INITOBJECT:
+		case ACTION_INITOBJECT:
 			print("initObject\n");
 			break;
-		case SWFACTION_INITARRAY:
+		case ACTION_INITARRAY:
 			print("initArray\n");
 			break;
-		case SWFACTION_GETVARIABLE:
+		case ACTION_GETVARIABLE:
 			print("getVariable\n");
 			break;
-		case SWFACTION_SETVARIABLE:
+		case ACTION_SETVARIABLE:
 			print("setVariable\n");
 			break;
-		case SWFACTION_STRINGCONCAT:
+		case ACTION_STRINGCONCAT:
 			print("concat\n");
 			break;
-		case SWFACTION_GETPROPERTY:
+		case ACTION_GETPROPERTY:
 			print("getProperty\n");
 			break;
-		case SWFACTION_SETPROPERTY:
+		case ACTION_SETPROPERTY:
 			print("setProperty\n");
 			break;
-		case SWFACTION_DUPLICATECLIP:
+		case ACTION_DUPLICATESPRITE:
 			print("duplicateClip\n");
 			break;
-		case SWFACTION_REMOVECLIP:
+		case ACTION_REMOVESPRITE:
 			print("removeClip\n");
 			break;
-		case SWFACTION_TRACE:
+		case ACTION_TRACE:
 			print("trace\n");
 			break;
-		case SWFACTION_STARTDRAGMOVIE:
+		case ACTION_STARTDRAGMOVIE:
 			print("startDrag\n");
 			break;
-		case SWFACTION_STOPDRAGMOVIE:
+		case ACTION_STOPDRAGMOVIE:
 			print("stopDrag\n");
 			break;
-		case SWFACTION_STRINGLESSTHAN:
+		case ACTION_STRINGLESSTHAN:
 			print("stringLessThan\n");
 			break;
-		case SWFACTION_STRINGGREATERTHAN:
+		case ACTION_STRINGGREATERTHAN:
 			print("stringGreaterThan\n");
 			break;
-		case SWFACTION_RANDOM:
+		case ACTION_RANDOM:
 			print("random\n");
 			break;
-		case SWFACTION_MBLENGTH:
+		case ACTION_MBLENGTH:
 			print("mbLength\n");
 			break;
-		case SWFACTION_ORD:
+		case ACTION_ORD:
 			print("ord\n");
 			break;
-		case SWFACTION_CHR:
+		case ACTION_CHR:
 			print("chr\n");
 			break;
-		case SWFACTION_GETTIMER:
+		case ACTION_GETTIMER:
 			print("getTimer\n");
 			break;
-		case SWFACTION_MBSUBSTRING:
+		case ACTION_MBSUBSTRING:
 			print("mbSubstring\n");
 			break;
-		case SWFACTION_MBORD:
+		case ACTION_MBORD:
 			print("mbOrd\n");
 			break;
-		case SWFACTION_MBCHR:
+		case ACTION_MBCHR:
 			print("mbChr\n");
 			break;
-		case SWFACTION_NEXTFRAME:
+		case ACTION_NEXTFRAME:
 			print("nextFrame\n");
 			break;
-		case SWFACTION_PREVFRAME:
+		case ACTION_PREVFRAME:
 			print("prevFrame\n");
 			break;
-		case SWFACTION_PLAY:
+		case ACTION_PLAY:
 			print("play\n");
 			break;
-		case SWFACTION_STOP:
+		case ACTION_STOP:
 			print("stop\n");
 			break;
-		case SWFACTION_TOGGLEQUALITY:
+		case ACTION_TOGGLEQUALITY:
 			print("toggleQuality\n");
 			break;
-		case SWFACTION_STOPSOUNDS:
+		case ACTION_STOPSOUNDS:
 			print("stopSounds\n");
 			break;
 
 			/* ops with args */
-		case SWFACTION_PUSHDATA:
+		case ACTION_PUSHDATA:
 			{
 				byte pushtype;
 				byte *start = p;
@@ -555,7 +555,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 							{
 								char *d = (char *) p;
 
-								if (mode >= MODE_UPDATE && (Action) start[len] == SWFACTION_POP) {
+								if (mode >= MODE_UPDATE && (Action) start[len] == ACTION_POP) {
 									fseek(stdout, pushstart, SEEK_SET);				 /* go back to overwrite 'push'            */
 									processASMLine(d);
 									p = start + len;								 /* skip to the end of push statement      */
@@ -801,7 +801,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 								char *d;
 								if (showLiterals && (*p < nDict)) {
 									d = dictionary[*p].value;
-									if (mode >= MODE_UPDATE && (Action) start[len] == SWFACTION_POP) {
+									if (mode >= MODE_UPDATE && (Action) start[len] == ACTION_POP) {
 										fseek(stdout, pushstart, SEEK_SET);			 /* go back to overwrite 'push'            */
 										processASMLine(d);
 										p = start + len;							 /* skip to the end of push statement      */
@@ -827,7 +827,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 								char *d;
 								if (showLiterals && (S16(p) < nDict)) {
 									d = dictionary[S16(p)].value;
-									if (mode >= MODE_UPDATE && (Action) start[len] == SWFACTION_POP) {
+									if (mode >= MODE_UPDATE && (Action) start[len] == ACTION_POP) {
 										fseek(stdout, pushstart, SEEK_SET);			 /* go back to overwrite 'push'            */
 										processASMLine(d);
 										p = start + len;							 /* skip to the end of push statement      */
@@ -859,12 +859,12 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_GOTOFRAME:
+		case ACTION_GOTOFRAME:
 			print("gotoFrame %u\n", S16(p));
 			p += 2;
 			break;
 
-		case SWFACTION_GETURL:
+		case ACTION_GETURL:
 		{
 			char *url = (char *) p;
 			p += strlen(url) + 1;
@@ -876,7 +876,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 			break;
 		}
 
-		case SWFACTION_BRANCHALWAYS:
+		case ACTION_BRANCHALWAYS:
 		{
 			long int l = longintBinaryFind((unsigned long int)(p + 2 + S16signed(p) - buffer), labels, numLabels);
 			if (l >= 0) {
@@ -893,7 +893,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 			break;
 		}
 
-		case SWFACTION_BRANCHIFTRUE:
+		case ACTION_BRANCHIFTRUE:
 		{
 			long int l = longintBinaryFind((unsigned long int)(p + 2 + S16signed(p) - buffer), labels, numLabels);
 			if (l >= 0) {
@@ -910,7 +910,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 			break;
 		}
 
-		case SWFACTION_GETURL2:
+		case ACTION_GETURL2:
 			{
 				byte flags = *p;
 				switch (flags) {
@@ -958,11 +958,11 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_CALLFRAME:
+		case ACTION_CALLFRAME:
 			print("callFrame\n");
 			break;
 
-		case SWFACTION_GOTOEXPRESSION:
+		case ACTION_GOTOEXPRESSION:
 			print("goto");
 			if (*p == 0)
 				puts("AndStop");
@@ -985,7 +985,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 			}
 			break;
 
-		case SWFACTION_IFFRAMELOADED:
+		case ACTION_IFFRAMELOADED:
 			{
 				unsigned int frame = S16(p);
 				byte frameLoadedActions;
@@ -999,7 +999,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_IFFRAMELOADEDEXPRESSION:
+		case ACTION_IFFRAMELOADEDEXPRESSION:
 			{
 				byte frameLoadedActions;
 				print("ifFrameLoadedExpr\n");
@@ -1011,7 +1011,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_SETTARGET:
+		case ACTION_SETTARGET:
 			{
 				if (targetIndent == 1) {
 					--indent;
@@ -1026,7 +1026,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_SETTARGETEXPRESSION:
+		case ACTION_SETTARGETEXPRESSION:
 			if (targetIndent == 1) {
 				--indent;
 				print("end\n");
@@ -1037,100 +1037,100 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 			targetIndent = 1;
 			break;
 
-		case SWFACTION_GOTOLABEL:
+		case ACTION_GOTOLABEL:
 			print("gotoLabel '%s'\n", p);
 			break;
 
-		case SWFACTION_END:
+		case ACTION_END:
 			break;
 
 			/* f5 ops */
-		case SWFACTION_DELETE:
+		case ACTION_DELETE:
 			print("delete\n");
 			break;
-		case SWFACTION_DELETE2:
+		case ACTION_DELETE2:
 			print("delete2\n");
 			break;
-		case SWFACTION_VAR:
+		case ACTION_VAR:
 			print("var\n");
 			break;
-		case SWFACTION_VAREQUALS:
+		case ACTION_VAREQUALS:
 			print("varEquals\n");
 			break;
-		case SWFACTION_CALLFUNCTION:
+		case ACTION_CALLFUNCTION:
 			print("callFunction\n");
 			break;
-		case SWFACTION_RETURN:
+		case ACTION_RETURN:
 			print("return\n");
 			break;
-		case SWFACTION_MODULO:
+		case ACTION_MODULO:
 			print("modulo\n");
 			break;
-		case SWFACTION_NEW:
+		case ACTION_NEW:
 			print("new\n");
 			break;
-		case SWFACTION_TYPEOF:
+		case ACTION_TYPEOF:
 			print("typeof\n");
 			break;
-		case SWFACTION_TARGETPATH:
+		case ACTION_TARGETPATH:
 			print("targetPath\n");
 			break;
-		case SWFACTION_NEWADD:
+		case ACTION_NEWADD:
 			print("add\n");
 			break;
-		case SWFACTION_NEWLESSTHAN:
+		case ACTION_NEWLESSTHAN:
 			print("lessThan\n");
 			break;
-		case SWFACTION_NEWEQUALS:
+		case ACTION_NEWEQUALS:
 			print("equals\n");
 			break;
-		case SWFACTION_TONUMBER:
+		case ACTION_TONUMBER:
 			print("toNumber\n");
 			break;
-		case SWFACTION_TOSTRING:
+		case ACTION_TOSTRING:
 			print("toString\n");
 			break;
-		case SWFACTION_DUP:
+		case ACTION_DUP:
 			print("dup\n");
 			break;
-		case SWFACTION_GETMEMBER:
+		case ACTION_GETMEMBER:
 			print("getMember\n");
 			break;
-		case SWFACTION_SETMEMBER:
+		case ACTION_SETMEMBER:
 			print("setMember\n");
 			break;
-		case SWFACTION_INCREMENT:
+		case ACTION_INCREMENT:
 			print("increment\n");
 			break;
-		case SWFACTION_DECREMENT:
+		case ACTION_DECREMENT:
 			print("decrement\n");
 			break;
-		case SWFACTION_NEWMETHOD:
+		case ACTION_NEWMETHOD:
 			print("newMethod\n");
 			break;
-		case SWFACTION_CALLMETHOD:
+		case ACTION_CALLMETHOD:
 			print("callMethod\n");
 			break;
-		case SWFACTION_BITWISEAND:
+		case ACTION_BITWISEAND:
 			print("bitwiseAnd\n");
 			break;
-		case SWFACTION_BITWISEOR:
+		case ACTION_BITWISEOR:
 			print("bitwiseOr\n");
 			break;
-		case SWFACTION_BITWISEXOR:
+		case ACTION_BITWISEXOR:
 			print("bitwiseXor\n");
 			break;
-		case SWFACTION_SHIFTLEFT:
+		case ACTION_SHIFTLEFT:
 			print("shiftLeft\n");
 			break;
-		case SWFACTION_SHIFTRIGHT:
+		case ACTION_SHIFTRIGHT:
 			print("shiftRight\n");
 			break;
-		case SWFACTION_SHIFTRIGHT2:
+		case ACTION_SHIFTRIGHT2:
 			print("shiftRight2\n");
 			break;
 
-		case SWFACTION_CONSTANTPOOL:
+		case ACTION_CONSTANTPOOL:
 			{
 				unsigned int i, n = S16(p);
 				int willInclude = 0;
@@ -1182,7 +1182,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_WITH:
+		case ACTION_WITH:
 			{
 				unsigned int withlen = S16(p);
 
@@ -1199,7 +1199,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_DEFINEFUNCTION:
+		case ACTION_DEFINEFUNCTION:
 			{
 				int nargs;
 				unsigned int funclen;
@@ -1249,11 +1249,11 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_ENUMERATE:
+		case ACTION_ENUMERATE:
 			print("enumerate\n");
 			break;
 
-		case SWFACTION_SETREGISTER:
+		case ACTION_SETREGISTER:
 			if (literalregisters && regtable != NULL && regtable[*p] != NULL && *regtable[*p] != '\0') {
 				if (goodID(regtable[*p]))
 					print("setRegister r:%s\n", regtable[*p]);
@@ -1264,23 +1264,23 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				print("setRegister r:%i\n", *p);
 			break;
 
-		case SWFACTION_STRICTEQUALS:
+		case ACTION_STRICTEQUALS:
 			print("strictEquals\n");
 			break;
 
-		case SWFACTION_GREATERTHAN:
+		case ACTION_GREATERTHAN:
 			print("greaterThan\n");
 			break;
 
-		case SWFACTION_ENUMERATEVALUE:
+		case ACTION_ENUMERATEVALUE:
 			print("enumerateValue\n");
 			break;
 
-		case SWFACTION_INSTANCEOF:
+		case ACTION_INSTANCEOF:
 			print("instanceOf\n");
 			break;
 
-		case SWFACTION_STRICTMODE:
+		case ACTION_STRICTMODE:
 			print("strictMode");
 			if (*p > 0)
 				puts(" ON");
@@ -1288,7 +1288,7 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				puts(" OFF");
 			break;
 
-		case SWFACTION_DEFINEFUNCTION2:
+		case ACTION_DEFINEFUNCTION2:
 			{
 				unsigned int i, funclen, nargs, autoregFlags;
 				int firstprint = 1;
@@ -1381,27 +1381,27 @@ static void printActionRecord(byte *p, Action type, unsigned int *lenptr, char *
 				break;
 			}
 
-		case SWFACTION_THROW:
+		case ACTION_THROW:
 			print("throw\n");
 			break;
 
-		case SWFACTION_EXTENDS:
+		case ACTION_EXTENDS:
 			print("extends\n");
 			break;
 
-		case SWFACTION_IMPLEMENTS:
+		case ACTION_IMPLEMENTS:
 			print("implements\n");
 			break;
 
-		case SWFACTION_CAST:
+		case ACTION_CAST:
 			print("cast\n");
 			break;
 
-		case SWFACTION_FSCOMMAND2:
+		case ACTION_FSCOMMAND2:
 			print("FSCommand2\n");
 			break;
 
-		case SWFACTION_TRY:
+		case ACTION_TRY:
 			{
 				unsigned int trylen, catchlen, finallylen;
 				/* try type */
@@ -1543,12 +1543,12 @@ static void createLabels(unsigned long int length)
 		if (buffer[i] & 0x80) {
 			blocklen = S16(buffer + i + 1);
 
-			if ((Action) buffer[i] == SWFACTION_BRANCHALWAYS || (Action) buffer[i] == SWFACTION_BRANCHIFTRUE) {
+			if ((Action) buffer[i] == ACTION_BRANCHALWAYS || (Action) buffer[i] == ACTION_BRANCHIFTRUE) {
 				if ((signed long int) (i + 3 + blocklen + S16signed(buffer + i + 3)) >= 0) {
 					addLabel(i + 3 + blocklen + S16signed(buffer + i + 3));
 				}
 			}
-			else if ((Action) buffer[i] == SWFACTION_CONSTANTPOOL) {
+			else if ((Action) buffer[i] == ACTION_CONSTANTPOOL) {
 				byte *p = buffer + i + 3;
 				unsigned int n, nStrings = S16(p);
 				numpools++;
@@ -2080,13 +2080,17 @@ void disassembleSWF(FILE *f, char *fname)
 
 	framesTotal = getWord(f);
 
-	printf("movie '%s'", fname);
+	printf("Parsing '%s':\n", fname);
 
 	if (wasCompressed)
-		printf(" compressed");
-	printf(" // flash %i, total frames: %u, frame rate: ", swfVersion, framesTotal);
+		printf("  // SWF compression: yes\n");
+    else
+		printf("  // SWF compression: none\n");
+	printf("  // SWF version: %i\n", swfVersion);
+	printf("  // number of frames: %u\n", framesTotal);
+	printf("  // frame rate: ");
 	printFloat(frameRate, 1);
-	printf(" fps, ");
+	printf(" fps\n  // resolution: ");
 	printFloat(movieWidth, 1);
 	putchar('x');
 	printFloat(movieHeight, 1);
@@ -2108,21 +2112,20 @@ void disassembleSWF(FILE *f, char *fname)
 				print("end // of frame %u\n", frameNum);
 				break;
 
-			case TAG_AVM2ACTION: {
+			case TAG_DOABC: {
                 static char buf[MAX_BUFFER];
                 print("\n");
-                print("ActionScript 3.0");
                 fread(buf, 1, length, f);
-                putchar('\n');
+                print("DoABC (ActionScript 3.0): ");
                 break;
             }
 
 			case TAG_DOINITACTION:
 				print("\n");
 				componentID = getWord(f);
-				print("initMovieClip %i\n", componentID);
+				print("initAction %i\n", componentID);
 				printActionBlock(f, length - 2, AB_INITMC, componentID, 0);
-				print("end // of initMovieClip %i\n", componentID);
+				print("end // of initAction %i\n", componentID);
 				break;
 
 			case TAG_PLACEOBJECT2:
@@ -2148,7 +2151,7 @@ void disassembleSWF(FILE *f, char *fname)
 				unsigned int recursion = getWord(f);
 				unsigned int timeout = getWord(f);
 				print("\n");
-				print("scriptLimits recursion %u timeout %u\n", recursion, timeout);
+				print("scriptLimits: recursion=%u, timeout=%u\n", recursion, timeout);
 				break;
 			}
 
